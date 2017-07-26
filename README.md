@@ -43,7 +43,14 @@ php bin/console ee-site:list // lists all the files present in the sites directo
 ```
 php bin/console ee-site:show example.com // shows the text file of website present in website webroot
 ```
+8. Update website:
+```
+php bin/console ee-site:update example.com --mysql // update website to mysql 5.6 
+php bin/console ee-site:update example.com --wp // updating plain html,php and other sites to WP sites
+php bin/console ee-site:update example.com --wpredis // update other sites with redis cache
+php bin/console ee-site:update exmaple.com --wpfc // update other sites with FastCGI cache
+```
 
 ## TODO:
 
-1. Update the websites.
+1. Interaction with SQLite DB.
