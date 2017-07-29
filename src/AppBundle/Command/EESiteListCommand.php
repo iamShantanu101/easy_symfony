@@ -52,16 +52,13 @@ class EESiteListCommand extends Command
 
         foreach ($input_option as $key=>$value) {
             if ($value) {
-                echo "$key\n";
                 switch ($key) {
                     case ($key == "enabled"):
                         $this->listfiles($input, $output);
-                      
-                        // no break
+                         break;
                     case ($key == "disabled"):
                         $this->listfiles($input, $output);
-                      
-                        // no break
+                         break;
                     default:
                         $this->listfiles($input, $output);
                        

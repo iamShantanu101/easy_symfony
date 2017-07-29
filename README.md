@@ -53,4 +53,5 @@ php bin/console ee-site:update exmaple.com --wpfc // update other sites with Fas
 
 ## TODO:
 
-1. Interaction with SQLite DB.
+- [x] Interaction with SQLite DB (ee-site:create, ee-site:info)
+- [ ] Interaction with SQLite DB (ee-site:delete, ee-site:update)

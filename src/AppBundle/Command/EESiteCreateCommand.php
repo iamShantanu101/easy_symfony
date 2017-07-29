@@ -103,12 +103,11 @@ class EESiteCreateCommand extends Command
         $this->name,
         '',
         ]);
-        var_dump($input_option);
+
         $previousValue = null;
 
         foreach ($input_option as $key=>$value) {
             if ($value) {
-                echo "$key\n";
                 switch ($key) {
             case ($key == "env"):
                 return;
@@ -117,8 +116,10 @@ class EESiteCreateCommand extends Command
                 $site_type = 'html';
                 $cache_type = 'disabled';
                 $PHP_flag = 'no';
-                $Mysql_flag = 'no';
-                $this->writefile($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
+        $Mysql_flag = 'no';
+                $this->writedb($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
+
+        $this->writefile($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
 
                     break;
             case ($key == "php"):
@@ -126,12 +127,13 @@ class EESiteCreateCommand extends Command
                     break;
                 }
                 $site_type = 'php';
-                    $cache_type = 'disabled';
+                $cache_type = 'disabled';
                 $PHP_flag = '5.6';
-                $Mysql_flag = 'no';
+        $Mysql_flag = 'no';
+                $this->writedb($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
+
                 $this->writefile($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
                 if ($previousValue) {
-                    echo $previousValue;
                 }
                 $previousValue = $key;
                 break;
@@ -140,45 +142,47 @@ class EESiteCreateCommand extends Command
                 
                 $cache_type = 'disabled';
                 $PHP_flag = '7.0';
-                $Mysql_flag = 'no';
-                echo "Inside php7";
+        $Mysql_flag = 'no';
+                $this->writedb($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
+
                 $this->writefile($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
                 if ($previousValue) {
-                    echo "$previousValue";
                 }
                 $previousValue = $key;
                 break;
             case ($key == "mysql"):
                 $site_type = 'php + mysql';
                 $cache_type = 'disabled';
-                $Mysql_flag = 'yes';
+                $Mysql_flag = '5.6';
                 if ($input->getOption('php7')) {
                     $PHP_flag = '7.0';
                 } else {
                     $PHP_flag = '5.6';
                 }
+                $this->writedb($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
+
                 $this->writefile($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
                     break;
             case ($key == "wp"):
-                echo "Inside wp with previousvalue $previousValue";
-                $site_type = 'Wordpress';
-                    $cache_type = 'disabled';
+                $site_type  = 'Wordpress';
+                $cache_type = 'disabled';
                 $Mysql_flag = '5.6';
                 if ($previousValue) {
-                    echo "This is previous $previousValue and this is key $key";
                 }
                 if ($previousValue == "php7") {
                     $PHP_flag = '7.0';
                 } else {
                     $PHP_flag = '5.6';
                 }
-                $previousValue = $key;
+        $previousValue = $key;
+                $this->writedb($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
+
                 $this->writefile($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
                     break;
             case ($key == "wpredis"):
-                $site_type = 'Wordpress';
-                    $cache_type = 'Redis';
-                $Mysql_flag = 'yes';
+                $site_type  = 'Wordpress';
+                $cache_type = 'Redis';
+                $Mysql_flag = '5.6';
                 if ($previousValue == "php7") {
                     $PHP_flag = '7.0';
                 } else {
@@ -187,11 +191,12 @@ class EESiteCreateCommand extends Command
                 if ($previousValue) {
                     $previousValue = $key;
                 }
+                $this->writedb($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
 
                 $this->writefile($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
                 break;
             case ($key == "wpfc"):
-                $site_type = 'Wordpress';
+                    $site_type  = 'Wordpress';
                     $cache_type = 'FastCGI';
                     $Mysql_flag = 'yes';
                     if ($previousValue == "php7") {
@@ -202,24 +207,46 @@ class EESiteCreateCommand extends Command
                  if ($previousValue) {
                      $previousValue = $key;
                  }
+                $this->writedb($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
+    
                 $this->writefile($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag);
                 break;
             }
             }
         }
     }
+
+    private function writedb($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag)
+    {
+        $this->name = $input->getArgument('site-name');
+        // create db
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        $ee = new EE();
+        $ee->setSite_name($this->name);
+        $ee->setSite_type($site_type);
+        $ee->setCache_type($cache_type);
+        $ee->setPHP_flag($PHP_flag);
+        $ee->setMysql_flag($Mysql_flag);
+
+        // tells Doctrine you want to (eventually) save the Product (no queries yet)
+        $em->persist($ee);
+
+        // actually executes the queries (i.e. the INSERT query)
+        $em->flush();
+    }
+
     private function writefile($input, $output, $site_type, $cache_type, $PHP_flag, $Mysql_flag)
     {
         $webroot_path = getenv('WEBROOT_PATH');
-        $this->name = $input->getArgument('site-name');
+        $this->name   = $input->getArgument('site-name');
         $input_option = $input->getOptions();
  
-        $structure = "$webroot_path/$this->name";
-        $my_file = "$structure/$this->name.txt";
-        $handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file); //implicitly creates file
-        $filename = "$structure/$this->name.txt";
+        $structure    = "$webroot_path/$this->name";
+        $my_file      = "$structure/$this->name.txt";
+        $handle       = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file); //implicitly creates file
+        $filename     = "$structure/$this->name.txt";
 
-        $filecontent = file_get_contents($filename);
+        $filecontent  = file_get_contents($filename);
         $filecontent .= "site-type = $site_type
 cache-type = $cache_type
 PHP = $PHP_flag

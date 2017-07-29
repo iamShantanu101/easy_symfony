@@ -66,60 +66,57 @@ class EESiteDeleteCommand extends Command
         // webroot dir
         $dirname = "$webroot_path/$name";
 
-        var_dump($input_option);
-
         foreach ($input_option as $key=>$value) {
             if ($value) {
-                echo "$key\n";
                 switch ($key) {
-                case ($key == "env"):
+                    case ($key == "env"):
                             break;
-                case ($key == "no-prompt"):
-                    array_map('unlink', glob("$dirname/*.*"));
+                    case ($key == "no-prompt"):
+                        array_map('unlink', glob("$dirname/*.*"));
                         rmdir($dirname) or die('Cannot delete site:  '.$name);
-                    $output->writeln([
+                        $output->writeln([
                             'Deleted website successfully!',
                            '',
                            ]);
                     break;
-                case ($key == "files"):
-                     $helper = $this->getHelper('question');
-                     $question = new ConfirmationQuestion('This will delete Website Webroot only, Continue?', false);
-                     if (!$helper->ask($input, $output, $question)) {
-                         return;
-                     }
-                     array_map('unlink', glob("$dirname/*.*"));
-                             rmdir($dirname) or die('Cannot delete site website webroot:  '.$name);
-                                 $output->writeln([
+                    case ($key == "files"):
+                        $helper = $this->getHelper('question');
+                        $question = new ConfirmationQuestion('This will delete Website Webroot only, Continue?', false);
+                        if (!$helper->ask($input, $output, $question)) {
+                            return;
+                        }
+                        array_map('unlink', glob("$dirname/*.*"));
+                        rmdir($dirname) or die('Cannot delete site website webroot:  '.$name);
+                        $output->writeln([
                             'Deleted website webroot successfully!',
                             '',
-                            ]);
+                        ]);
                      break;
-                case ($key == "db"):
-                     $question = new ConfirmationQuestion('This will delete Website DB only, Continue?', false);
-                            if (!$helper->ask($input, $output, $question)) {
-                                return;
-                            }
+                     case ($key == "db"):
+                        $question = new ConfirmationQuestion('This will delete Website DB only, Continue?', false);
+                        if (!$helper->ask($input, $output, $question)) {
+                            return;
+                        }
 
-                            $output->writeln([
-                            'Deleted website DB successfully',
+                        $output->writeln([
+                        'Deleted website DB successfully',
                                         '',
-                            ]);
+                        ]);
                      break;
-                default:
-                     $question = new ConfirmationQuestion('This will delete website as well as DB, continue?, false');
-                     if (!$helper->ask($input, $output, $question)) {
-                         return;
-                     }
-                     array_map('unlink', glob("$dirname/*.*"));
-                                     rmdir($dirname) or die('Cannot delete site website webroot:  '.$name);
-                     $output->writeln([
-                     'Deleted webroot and DB successfully',
-                     '',
-                     ]);
-                     break;
-            
-            }
+                }
+            } else {
+                $helper = $this->getHelper('question');
+                $question = new ConfirmationQuestion('This will delete website as well as DB, continue?', false);
+                if (!$helper->ask($input, $output, $question)) {
+                    return;
+                }
+                array_map('unlink', glob("$dirname/*.*"));
+                rmdir($dirname) or die('Cannot delete site website webroot:  '.$name);
+                $output->writeln([
+                       'Deleted webroot and DB successfully',
+                       '',
+                       ]);
+                return;
             }
         }
     }
