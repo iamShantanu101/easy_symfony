@@ -2,6 +2,10 @@
 
 namespace AppBundle\Command;
 
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
+use AppBundle\Entity\Product;
+
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -52,13 +56,16 @@ class EESiteListCommand extends Command
 
         foreach ($input_option as $key=>$value) {
             if ($value) {
+                echo "$key\n";
                 switch ($key) {
                     case ($key == "enabled"):
                         $this->listfiles($input, $output);
-                         break;
+                      
+                        // no break
                     case ($key == "disabled"):
                         $this->listfiles($input, $output);
-                         break;
+                      
+                        // no break
                     default:
                         $this->listfiles($input, $output);
                        
@@ -77,5 +84,7 @@ class EESiteListCommand extends Command
         foreach ($files as $key => $value) {
             echo "$value\n";
         }
+
+        
     }
 }
