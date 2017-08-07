@@ -56,7 +56,7 @@ class EESiteListCommand extends Command
 
         foreach ($input_option as $key=>$value) {
             if ($value) {
-                echo "$key\n";
+                
                 switch ($key) {
                     case ($key == "enabled"):
                         $this->listfiles($input, $output);
@@ -77,14 +77,17 @@ class EESiteListCommand extends Command
 
     protected function listfiles($input, $output)
     {
-        // get wesites directory from env variable.
-        // To set env variable in *nix do: export WEBROOT_PATH=/path/to/dir
-        $webroot_path = getenv('WEBROOT_PATH');
-        $files = preg_grep('/^([^.])/', scandir($webroot_path));
-        foreach ($files as $key => $value) {
-            echo "$value\n";
-        }
+        em = $this->getContainer()->get('doctrine')->getManager();
 
-        
+        $query = $em->createQuery(
+            'SELECT e.site_name
+             FROM AppBundle:EE e'
+        );
+        $site_names = $query->getResult();
+
+        array_values($site_names);
+        foreach ($site_names as $key ) {
+                echo $key['site_name'] . "\n" ;
+        }
     }
 }
