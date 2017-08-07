@@ -77,7 +77,7 @@ class EESiteListCommand extends Command
 
     protected function listfiles($input, $output)
     {
-        em = $this->getContainer()->get('doctrine')->getManager();
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
         $query = $em->createQuery(
             'SELECT e.site_name
